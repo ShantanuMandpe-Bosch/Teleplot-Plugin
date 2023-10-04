@@ -140,29 +140,6 @@ function runCmd(msg) {
         });
         const parser = serials[id].pipe(new serialport_1.ReadlineParser({ delimiter: '\n' }));
         parser.on('data', function (data) {
-            /*const substrings = data.split(" ");
-            const length = substrings.length;
-            let _i : any;
-            let sensorDataHex: any[] = [];
-            let finalData: any[] = [];
-
-            // convert from binary to hexadecimal
-            for (let k in substrings){
-                sensorDataHex.push(binaryToHexadecimal(k));
-            }
-
-            //convert from hexadecimal to string or short depending on position
-            for (_i = 0; _i < length; _i++){
-                if(_i === 0||_i === 2||_i === 4||_i === 5||_i === 6){
-                    finalData.push(hexStringToShort(sensorDataHex[_i]))
-                } else {
-                    finalData.push(hexadecimalToString(sensorDataHex[_i]))
-                }
-            }
-
-            const sensorData = finalData.join(" ");
-
-            vscode.window.showInformationMessage(sensorData);*/
             currentPanel.webview.postMessage({ id, data: data.toString(), fromSerial: true, timestamp: new Date().getTime() });
         });
         serials[id].on('close', function (err) {

@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 
     for (;;)
     {
-        // Use instanciated object
+        // Use instantiated object
         teleplot.update("sin", sin(i), "km²");
         teleplot.update("cos", cos(i), "", 10); // Limit at 10Hz
         teleplot.update("state", state_arr[rand()%state_arr_length], "", 0, "t");

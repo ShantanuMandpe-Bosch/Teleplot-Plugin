@@ -16,26 +16,25 @@ function parseData(msgIn){
     for(let msg of msgList){
         try{
 
-            msg = ">:"+msg; 
+            if(msg.startsWith("00110001")) msg = ">:"+msg; 
+            else if (msg.startsWith("00110011")) msg = ">3D|"+msg;
+
             // Inverted logic on serial port for usability
             if(fromSerial && msg.startsWith(">")) msg = msg.substring(1);// remove '>' to consider as variable
             else if(fromSerial && !msg.startsWith(">")) msg = ">:"+msg;// add '>' to consider as log
-            
-            let logMsg = ">"+msg;
+             
             // Command
             if(msg.startsWith("|"))
                 parseCommandList(msg);
             // Log
-            else if(logMsg.startsWith(">"))
-                parseLog(logMsg, now);
+            else if(msg.startsWith(">") ) 
+                parseLog(msg, now);
             // 3D
-            else if (msg.substring(0,3) == "3D|")
+            else if (msg.substring(0,3) == "3D|") 
                 parse3D(msg, now);
             // Data
             else
-                /*new1 = msg.split(" ");
-                msg = hexToShort(new[1]).toString() + ":" + hexToString(new[0]);*/
-                parseVariablesData(msg, now);
+                parseVariablesData(msg, now); 
         }
         catch(e){console.log(e)}
     }
@@ -62,7 +61,13 @@ function parseCommandList(msg) // a String containing a list of commands, ex : "
 // now : a Number representing a timestamp
 function parseLog(msg, now) 
 {
-       
+    let newMsg = msg.split(" ");
+    msg = "";
+    msg = msg.concat("",binaryToString(newMsg[1])); 
+    /*for (let x in newMsg){
+        msg.concat("",binaryToString(newMsg[x])); 
+    }*/
+
     let logStart = msg.indexOf(":")+1;
     
     let logText = msg.substr(logStart);
@@ -85,12 +90,15 @@ function parseVariablesData(msg, now)
     if(!msg.includes(':')) return;
 
     /////////////////
-    msg = msg.substring(1); // to remove the parenthesis added at the start
     let newMsg = msg.split(" ");
     msg = "";
-    msg = msg.concat("", binaryToString(newMsg[1]));
+    msg = binaryToString(newMsg[1]);
+
+    let cut = msg.split(" ");
+    msg = "";
+    msg = msg.concat("",(cut[1])); 
     msg = msg.concat("",":");
-    msg = msg.concat("",binaryToDecimal(newMsg[6]));
+    msg = msg.concat("",(cut[7])); 
     ////////////////
     let startIdx = msg.indexOf(':');
 
@@ -185,6 +193,9 @@ function separateWidgetAndLabel(keyAndWidgetLabel)
 function parse3D(msg, now)
 {
     //3D|myData1:R::3.14:P:1:2:-1:S:cube:W:5:H:4:D:3:C:red|g
+    let newMsg = msg.split(" ");
+    msg = "";
+    msg = msg.concat("",binaryToString(newMsg[1]));
 
     let firstPipeIdx = msg.indexOf("|");
     let startIdx = msg.indexOf(':') +1;
