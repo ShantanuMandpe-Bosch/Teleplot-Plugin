@@ -28,6 +28,7 @@ class ConnectionTeleplotVSCode extends Connection{
             }
             else{
                 if("data" in msg) {
+                    console.log("This point has been reached");
                     parseData(msg); //update server so it keeps track of connection IDs when forwarding data
                 }
                 else if("cmd" in msg) {

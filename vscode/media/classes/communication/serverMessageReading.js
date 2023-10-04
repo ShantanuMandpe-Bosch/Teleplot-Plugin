@@ -15,22 +15,26 @@ function parseData(msgIn){
 
     for(let msg of msgList){
         try{
+
+            if(msg.startsWith("00110001")) msg = ">:"+msg; 
+            else if (msg.startsWith("00110011")) msg = ">3D|"+msg;
+
             // Inverted logic on serial port for usability
             if(fromSerial && msg.startsWith(">")) msg = msg.substring(1);// remove '>' to consider as variable
             else if(fromSerial && !msg.startsWith(">")) msg = ">:"+msg;// add '>' to consider as log
-            
+             
             // Command
             if(msg.startsWith("|"))
                 parseCommandList(msg);
             // Log
-            else if(msg.startsWith(">"))
+            else if(msg.startsWith(">") ) 
                 parseLog(msg, now);
             // 3D
-            else if (msg.substring(0,3) == "3D|")
+            else if (msg.substring(0,3) == "3D|") 
                 parse3D(msg, now);
             // Data
             else
-                parseVariablesData(msg, now);
+                parseVariablesData(msg, now); 
         }
         catch(e){console.log(e)}
     }
@@ -57,7 +61,13 @@ function parseCommandList(msg) // a String containing a list of commands, ex : "
 // now : a Number representing a timestamp
 function parseLog(msg, now) 
 {
-       
+    let newMsg = msg.split(" ");
+    msg = "";
+    msg = msg.concat("",binaryToString(newMsg[1])); 
+    /*for (let x in newMsg){
+        msg.concat("",binaryToString(newMsg[x])); 
+    }*/
+
     let logStart = msg.indexOf(":")+1;
     
     let logText = msg.substr(logStart);
@@ -79,6 +89,17 @@ function parseVariablesData(msg, now)
 {
     if(!msg.includes(':')) return;
 
+    /////////////////
+    let newMsg = msg.split(" ");
+    msg = "";
+    msg = binaryToString(newMsg[1]);
+
+    let cut = msg.split(" ");
+    msg = "";
+    msg = msg.concat("",(cut[1])); 
+    msg = msg.concat("",":");
+    msg = msg.concat("",(cut[7])); 
+    ////////////////
     let startIdx = msg.indexOf(':');
 
     let keyAndWidgetLabel = msg.substr(0,msg.indexOf(':'));
@@ -172,6 +193,9 @@ function separateWidgetAndLabel(keyAndWidgetLabel)
 function parse3D(msg, now)
 {
     //3D|myData1:R::3.14:P:1:2:-1:S:cube:W:5:H:4:D:3:C:red|g
+    let newMsg = msg.split(" ");
+    msg = "";
+    msg = msg.concat("",binaryToString(newMsg[1]));
 
     let firstPipeIdx = msg.indexOf("|");
     let startIdx = msg.indexOf(':') +1;
@@ -335,3 +359,43 @@ function appendData(key, valuesX, valuesY, valuesZ, unit, flags, telemType, widg
     }
     return;
 }
+
+function hexToShort(hexString) {
+    if(hexString.startsWith("0x")){
+        hexString = hexString.slice(2);
+    }
+
+    let decimalValue = parseInt(hexString,16);
+
+    return decimalValue;
+}
+
+function hexToString(hexString){
+    let hexText = "";
+
+    for(let i=0;i<hexString.length-1;i +=2){
+        let hexChar = hexString.substr(i,2);
+        var charCode = parseInt(hexChar,16);
+        hexText += String.fromCharCode(charCode);
+    }
+
+    return hexText;
+}
+
+function binaryToDecimal(binaryString){
+    return parseInt(binaryString,2);
+}
+
+function binaryToString(binaryString){
+    let binaryText = "";
+
+    for(let i=0;i<binaryString.length;i +=8){
+        let byte = binaryString.slice(i,i+8);
+        var decimalValue = parseInt(byte,2);
+        binaryText += String.fromCharCode(decimalValue);
+    }
+
+    return binaryText;
+}
+
+

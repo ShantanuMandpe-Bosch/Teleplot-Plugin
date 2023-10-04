@@ -23,7 +23,7 @@
 			"options": {
 				"cwd": "${workspaceFolder}"
 			},
-			"command": "rm -rf ./media/; mkdir media; cp -r ../server/www/* ./media/",
+			"command": "rm -rf ./media/; mkdir media; cp -r ../server/www/* ./media/", 
 			"presentation": {
 				"reveal": "always"
 			},

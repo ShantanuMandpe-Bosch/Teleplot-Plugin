@@ -33,8 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
 			const workbenchConfig = vscode.workspace.getConfiguration('workbench')
     		const toEdit = workbenchConfig.get('configurations')
 			
-			console.log("This is the change that shantanu made!!")
-			vscode.window.showInformationMessage("I am the fucking GOAT!!")
+			vscode.window.showInformationMessage("This version reads data sent over serial in Binary representation");
 
 			const column = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : undefined;
 			// If we already have a panel, show it.
@@ -100,6 +99,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 			panel.webview.onDidReceiveMessage( message => {
 				if("data" in message) {
+					console.log("This point has been reached"); /////////////
 					var udpClient = udp.createSocket('udp4');
 					udpClient.send(message.data, 0, message.data.length, CMD_UDP_PORT, ()=> {
 						udpClient.close();
@@ -144,7 +144,7 @@ function runCmd(msg:any){
 		}
 		serials[id] = new SerialPort({baudRate: msg.baud, path: msg.port}, function(err: any) {
 			if(err) {
-				console.log("erroror");
+				console.log("This is the issue");
 				currentPanel.webview.postMessage({id, cmd: "serialPortError", port: msg.port, baud: msg.baud});
 			}
 			else {
@@ -195,3 +195,10 @@ function exportDataWithConfirmation(fileName: string, filters: { [name: string]:
 		}
 	});
 }
+
+
+
+function binaryToHexadecimal(binary: string): string | null {
+	const returnValue = parseInt(binary, 2).toString(16).toUpperCase();
+	return returnValue;
+  }

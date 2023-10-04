@@ -15,21 +15,26 @@ function parseData(msgIn){
 
     for(let msg of msgList){
         try{
+
+            msg = ">:"+msg; 
             // Inverted logic on serial port for usability
             if(fromSerial && msg.startsWith(">")) msg = msg.substring(1);// remove '>' to consider as variable
             else if(fromSerial && !msg.startsWith(">")) msg = ">:"+msg;// add '>' to consider as log
             
+            let logMsg = ">"+msg;
             // Command
             if(msg.startsWith("|"))
                 parseCommandList(msg);
             // Log
-            else if(msg.startsWith(">"))
-                parseLog(msg, now);
+            else if(logMsg.startsWith(">"))
+                parseLog(logMsg, now);
             // 3D
             else if (msg.substring(0,3) == "3D|")
                 parse3D(msg, now);
             // Data
             else
+                /*new1 = msg.split(" ");
+                msg = hexToShort(new[1]).toString() + ":" + hexToString(new[0]);*/
                 parseVariablesData(msg, now);
         }
         catch(e){console.log(e)}
@@ -79,6 +84,14 @@ function parseVariablesData(msg, now)
 {
     if(!msg.includes(':')) return;
 
+    /////////////////
+    msg = msg.substring(1); // to remove the parenthesis added at the start
+    let newMsg = msg.split(" ");
+    msg = "";
+    msg = msg.concat("", binaryToString(newMsg[1]));
+    msg = msg.concat("",":");
+    msg = msg.concat("",binaryToDecimal(newMsg[6]));
+    ////////////////
     let startIdx = msg.indexOf(':');
 
     let keyAndWidgetLabel = msg.substr(0,msg.indexOf(':'));
@@ -335,3 +348,43 @@ function appendData(key, valuesX, valuesY, valuesZ, unit, flags, telemType, widg
     }
     return;
 }
+
+function hexToShort(hexString) {
+    if(hexString.startsWith("0x")){
+        hexString = hexString.slice(2);
+    }
+
+    let decimalValue = parseInt(hexString,16);
+
+    return decimalValue;
+}
+
+function hexToString(hexString){
+    let hexText = "";
+
+    for(let i=0;i<hexString.length-1;i +=2){
+        let hexChar = hexString.substr(i,2);
+        var charCode = parseInt(hexChar,16);
+        hexText += String.fromCharCode(charCode);
+    }
+
+    return hexText;
+}
+
+function binaryToDecimal(binaryString){
+    return parseInt(binaryString,2);
+}
+
+function binaryToString(binaryString){
+    let binaryText = "";
+
+    for(let i=0;i<binaryString.length;i +=8){
+        let byte = binaryString.slice(i,i+8);
+        var decimalValue = parseInt(byte,2);
+        binaryText += String.fromCharCode(decimalValue);
+    }
+
+    return binaryText;
+}
+
+
